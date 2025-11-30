@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    container_name: docker-totp-app
+
+    ports:
+      - "8080:8080"
+
+    volumes:
+      # Persist seed generated inside container
+      - seed-data:/data
+      # Persist cron output
+      - cron-output:/cron
+      - ./cron/2fa-cron:/app/cron/2fa-cron:ro
+      - ./app/scripts:/app/scripts:ro
+
+
+      # Mount key files (read-only)
+      - ./student_private.pem:/app/student_private.pem:ro
+      - ./student_public.pem:/app/student_public.pem:ro
+      - ./instructor_public.pem:/app/instructor_public.pem:ro
+
+    environment:
+      - TZ=UTC
+
+    restart: unless-stopped
+
+volumes:
+  seed-data:
+  cron-output:
